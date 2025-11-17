@@ -5,12 +5,15 @@ public class Timer : MonoBehaviour
 {
     // 経過時間
     private float elapsedTime = 0f;
+    private bool isRunning = true;
 
     // TextMeshPro参照（Inspectorで設定）
     public TextMeshProUGUI timeText;
 
     void Update()
     {
+        if (!isRunning) return;
+
         // 経過時間を加算
         elapsedTime += Time.deltaTime;
 
@@ -23,5 +26,10 @@ public class Timer : MonoBehaviour
         {
             timeText.text = $"{minutes:00}:{seconds:00}";
         }
+    }
+
+    public void StopTimer()
+    {
+        isRunning = false;
     }
 }

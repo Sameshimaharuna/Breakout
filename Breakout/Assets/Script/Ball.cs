@@ -4,9 +4,10 @@ public class Ball : MonoBehaviour
 {
     public float moveSpeed = 5f;                // 移動速度
     private Vector3 moveDirection;              // 現在の進行方向
-    public GameObject[] stopTargets;            // 止めたいオブジェクトたち（Inspectorで登録）
-
+    // GameManager参照（Inspectorで設定 or 自動検索）
+    public GameManager gameManager;
     private Rigidbody rb;
+    private bool isStopped = false;
 
     void Start()
     {
@@ -16,68 +17,42 @@ public class Ball : MonoBehaviour
         moveDirection = Vector3.down;
     }
 
-    void FixedUpdate()
+    public void StopBall()
     {
-        // Rigidbodyの物理挙動で移動
-        rb.linearVelocity = moveDirection * moveSpeed;
+        isStopped = true;
+        if (rb != null) rb.linearVelocity = Vector3.zero;
+    }
+
+    void Update()
+    {
+        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        if (isStopped) return;
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Bar・Wall・Ballタグのいずれかに接触したらランダムな方向へ変更
+        // Bar・Wallタグのいずれかに接触したらランダムな方向へ変更
         if (collision.gameObject.CompareTag("Bar") ||
-            collision.gameObject.CompareTag("Wall") ||
-            collision.gameObject.CompareTag("Ball"))
+            collision.gameObject.CompareTag("Wall"))
         {
-            // 接触面の平均法線を計算
-            Vector3 avgNormal = Vector3.zero;
-            foreach (var contact in collision.contacts)
-            {
-                avgNormal += contact.normal;
-            }
-            avgNormal.Normalize();
+            Vector3 normal = collision.contacts[0].normal;
 
-            // まずは物理的に正しい反射方向を求める
-            Vector3 reflectDir = Vector3.Reflect(moveDirection, avgNormal);
+            // まずは物理的に正しい反射方向を取得
+            Vector3 reflectDir = Vector3.Reflect(moveDirection, normal);
 
-            // 反射角が浅すぎた場合の補正（ほぼ水平なら少し上げる）
-            if (Mathf.Abs(reflectDir.y) < 0.2f)
-            {
-                reflectDir.y = Mathf.Sign(reflectDir.y) * 0.3f;
-            }
+            // 小さなランダム角度（±15度）で調整
+            float randomAngle = Random.Range(-15f, 15f);
+            Quaternion rotation = Quaternion.AngleAxis(randomAngle, Vector3.up);
 
-            // タグごとの挙動調整
-            if (collision.gameObject.CompareTag("Bar"))
-            {
-                // Barに当たったら、上方向成分を強調（確実に上に跳ねる）
-                reflectDir.y = Mathf.Abs(reflectDir.y) + 0.4f;
-            }
-            else if (collision.gameObject.CompareTag("Wall"))
-            {
-                // 壁なら、上下成分を維持してランダムに横ズラし
-                float randomAngle = Random.Range(-10f, 10f);
-                Quaternion rotation = Quaternion.AngleAxis(randomAngle, Vector3.up);
-                reflectDir = rotation * reflectDir;
-            }
-
-            // 正規化して新しい進行方向を設定
-            moveDirection = reflectDir.normalized;
+            // 回転後の新しい方向
+            moveDirection = rotation * reflectDir;
+            moveDirection.Normalize();
         }
 
         // Dedタグのオブジェクトに接触したら停止対象を止める
         else if (collision.gameObject.CompareTag("Ded"))
         {
-            foreach (GameObject obj in stopTargets)
-            {
-                if (obj != null)
-                {
-                    Rigidbody rb = obj.GetComponent<Rigidbody>();
-                    if (rb != null)
-                    {
-                        rb.linearVelocity = Vector3.zero;
-                    }
-                }
-            }
+            gameManager.StopObjects();
         }
     }
 }

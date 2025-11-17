@@ -8,8 +8,9 @@ public class GameManager : MonoBehaviour
     // すべてのブロックを格納する配列
     public GameObject[] blocks;
 
-    // 停止させたいオブジェクトたち（ボールとかBarとか）
-    public GameObject[] stopObjects;
+    [SerializeField] Bar bar;       // Bar クラス
+    [SerializeField] Timer timer;   // Timer クラス
+    [SerializeField] Ball ball;  // Ball クラス
 
     void Update()
     {
@@ -39,28 +40,10 @@ public class GameManager : MonoBehaviour
     }
 
     // 動作停止処理
-    private void StopObjects()
+    public void StopObjects()
     {
-        foreach (GameObject obj in stopObjects)
-        {
-            if (obj != null)
-            {
-                Rigidbody rb = obj.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector3.zero;
-                    rb.isKinematic = true;
-                }
-
-                // ObjectMoverとかのスクリプトも止める
-                MonoBehaviour mover = obj.GetComponent<MonoBehaviour>();
-                if (mover != null)
-                {
-                    mover.enabled = false;
-                }
-            }
-        }
-
-        Debug.Log("全ブロックが消えたので動作停止しました。");
+        bar.StopMovement();
+        timer.StopTimer();
+        ball.StopBall();
     }
 }

@@ -6,6 +6,7 @@ public class Bar : MonoBehaviour
     private Rigidbody rb;
     private int moveDir = 0;      // -1：左、1：右、0：停止
     private int blockedDir = 0;   // 進行禁止方向
+    private bool isStopped = false;
 
     void Start()
     {
@@ -14,6 +15,8 @@ public class Bar : MonoBehaviour
 
     void Update()
     {
+        if (isStopped) return; // 停止後は操作不可
+        
         // ←キーで左、→キーで右（ただし進行禁止方向は無視）
         if (Input.GetKey(KeyCode.LeftArrow) && blockedDir != -1)
         {
@@ -57,5 +60,10 @@ public class Bar : MonoBehaviour
             blockedDir = 0;
             Debug.Log("Wallから離れたので移動解除！");
         }
+    }
+
+    public void StopMovement()
+    {
+        isStopped = true;
     }
 }

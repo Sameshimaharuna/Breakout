@@ -1060,10 +1060,9 @@ MonoBehaviour:
   - {fileID: 1105011675}
   - {fileID: 1090876316}
   - {fileID: 1030891029}
-  stopObjects:
-  - {fileID: 1882430343}
-  - {fileID: 1131804296}
-  - {fileID: 282214035}
+  bar: {fileID: 1131804301}
+  timer: {fileID: 282214039}
+  ball: {fileID: 1882430349}
 --- !u!4 &526856614
 Transform:
   m_ObjectHideFlags: 0
@@ -1967,10 +1966,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  stopTargets:
-  - {fileID: 1882430343}
-  - {fileID: 1131804296}
-  - {fileID: 282214035}
+  gameManager: {fileID: 526856613}
 --- !u!1 &1895237502 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7169222215116517836, guid: 91897b691f4516d429d265bf8192bdbc, type: 3}
